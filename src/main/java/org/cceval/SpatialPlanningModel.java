@@ -5,6 +5,7 @@ import org.cceval.grid.neighborhood.Neighborhoods;
 import org.cceval.grid.regular.square.PartialRegularSquareGrid;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.UndirectedGraphVar;
 import org.chocosolver.util.graphOperations.connectivity.ConnectivityFinder;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
@@ -22,6 +23,7 @@ public class SpatialPlanningModel {
 
     Model model;
     UndirectedGraphVar habitatGraphVar;
+    SetVar nodes;
     IntVar nbPUs;
     IntVar nbPatches;
 
@@ -80,6 +82,7 @@ public class SpatialPlanningModel {
         // Create the nbPatches variable
         this.nbPatches = model.intVar(0, GUB.getNodes().size());
         model.nbConnectedComponents(habitatGraphVar, nbPatches).post();
+        nodes = model.graphNodeSetView(habitatGraphVar);
     }
 
     public void postBudgetConstraint(int minBudget, int maxBudget) {
