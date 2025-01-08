@@ -49,13 +49,6 @@ public class RasterConnectivityFinder {
     private int[][] neighs;
     private long npro;
     private int[] CCFirstNode, CCNextNode, nodeCC, parent, fifo, sizeCC;
-    private int[][] attributeCC;
-    private int[][] attributeCell;
-    private int[] edgesHorizontal, edgesVertical;
-    private INeighborhood neighborhood;
-    private RegularSquareGrid grid;
-
-    private int nbAttributes;
     private int nbCC, sizeMinCC, sizeMaxCC;
     Map<Integer, Integer> graphIdxToRasterIdx;
     Map<Integer, Integer> rasterIdxToGraphIdx;
@@ -65,12 +58,11 @@ public class RasterConnectivityFinder {
      * Create an object that can compute Connected Components (CC) of a graph g
      * Can also quickly tell whether g is biconnected or not (only for undirected graph)
      */
-    public RasterConnectivityFinder(int nbRows, int nbCols, int[] values, int classValue, int[][] attributeCell, INeighborhood neighborhood) {
+    public RasterConnectivityFinder(int nbRows, int nbCols, int[] values, int classValue, INeighborhood neighborhood) {
         this.n = 0;
         this.values = values;
         this.classValue = classValue;
-        this.neighborhood = neighborhood;
-        this.grid = new RegularSquareGrid(nbRows, nbCols);
+        RegularSquareGrid grid = new RegularSquareGrid(nbRows, nbCols);
         int currentIdx = 0;
         graphIdxToRasterIdx = new HashMap<>();
         rasterIdxToGraphIdx = new HashMap<>();
@@ -82,9 +74,6 @@ public class RasterConnectivityFinder {
                 currentIdx++;
             }
         }
-        this.attributeCell = attributeCell;
-        this.nbAttributes = attributeCell[0].length;
-        this.attributeCC = new int[n][nbAttributes];
         this.neighs = new int[n][];
         currentIdx = 0;
         for (int i = 0; i < values.length; i++) {
@@ -100,16 +89,8 @@ public class RasterConnectivityFinder {
         findAllCC();
     }
 
-    public RasterConnectivityFinder(int nbRows, int nbCols, int[] values, int classValue, INeighborhood neighborhood) {
-        this(nbRows, nbCols, values, classValue, new int[][] {}, neighborhood);
-    }
-
     public int getNbNodes() {
         return n;
-    }
-
-    public int getNbAttributes() {
-        return nbAttributes;
     }
 
     public int[] getNodesRasterIdx() {
@@ -153,22 +134,6 @@ public class RasterConnectivityFinder {
         return sizeCC;
     }
 
-    public int[] getAttributeCC(int cc) {
-        return attributeCC[cc];
-    }
-
-    public int getEdgesHorizontal(int cc) {
-        return edgesHorizontal[cc];
-    }
-
-    public int getEdgesVertical(int cc) {
-        return edgesVertical[cc];
-    }
-
-    public int[] getAttributesCell(int cell) {
-        return attributeCell[cell];
-    }
-
     public int[] getCCFirstNode() {
         return CCFirstNode;
     }
@@ -191,8 +156,6 @@ public class RasterConnectivityFinder {
             CCNextNode = new int[n];
             nodeCC = new int[n];
             sizeCC = new int[n];
-            edgesHorizontal = new int[n];
-            edgesVertical = new int[n];
         }
         sizeMinCC = 0;
         sizeMaxCC = 0;
@@ -203,8 +166,6 @@ public class RasterConnectivityFinder {
         for (int i = 0; i < CCFirstNode.length; i++) {
             CCFirstNode[i] = -1;
             sizeCC[i] = -1;
-            edgesHorizontal[i] = -1;
-            edgesVertical[i] = -1;
         }
         int cc = 0;
         for (int i = 0; i < n; i++) {
@@ -227,42 +188,21 @@ public class RasterConnectivityFinder {
         int first = 0;
         int last = 0;
         int size = 1;
-        int edgesH = 0;
-        int edgesV = 0;
-        int[] attributes = new int[nbAttributes];
-        for (int k = 0; k < nbAttributes; k++) {
-            attributes[k] = attributeCell[start][k];
-        }
         fifo[last++] = start;
         parent[start] = start;
         add(start, cc);
         while (first < last) {
             int i = fifo[first++];
-            int nbH = 2;
-            int nbV = 2;
             for (int j : neighs[i]) {
-                if (neighborhood.isHorizontalNeighbor(grid, graphIdxToRasterIdx.get(i), graphIdxToRasterIdx.get(j))) {
-                    nbV--;
-                } else if (neighborhood.isVerticalNeighbor(grid, graphIdxToRasterIdx.get(i), graphIdxToRasterIdx.get(j))) {
-                    nbH--;
-                }
                 if (parent[j] == -1) {
                     parent[j] = i;
                     add(j, cc);
                     size++;
-                    for (int k = 0; k < nbAttributes; k++) {
-                        attributes[k] += attributeCell[j][k];
-                    }
                     fifo[last++] = j;
                 }
             }
-            edgesH += nbH;
-            edgesV += nbV;
         }
-        attributeCC[cc] = attributes;
         sizeCC[cc] = size;
-        edgesHorizontal[cc] = edgesH;
-        edgesVertical[cc] = edgesV;
     }
 
     private void add(int node, int cc) {

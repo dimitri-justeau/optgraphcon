@@ -12,13 +12,11 @@ import java.util.stream.IntStream;
 public class PartialRegularGroupedGrid extends GroupedGrid {
 
     private final int[] sizeCells;
-    private final int[][] attributesNodes;
     private final int nbGroups;
     private final ISet[] groups;
     private final int nbGroupedCells;
     private final int[] unGroupedId;
     private final Map<Integer, Integer> gridIdToGroupedId;
-    private RasterConnectivityFinder groupGraph;
 
     public PartialRegularGroupedGrid(int nbRows, int nbCols, int[] toDiscard, RasterConnectivityFinder groupGraph) {
         this(nbRows, nbCols, toDiscard, groupGraph, 4);
@@ -26,18 +24,13 @@ public class PartialRegularGroupedGrid extends GroupedGrid {
 
     public PartialRegularGroupedGrid(int nbRows, int nbCols, int[] toDiscard, RasterConnectivityFinder groupGraph, int maxNeighCard) {
         super(nbRows, nbCols, toDiscard);
-        this.groupGraph = groupGraph;
         this.nbGroupedCells = groupGraph.getNbNodes();
         this.nbGroups = groupGraph.getNBCC();
         this.sizeCells = new int[super.getNbCells() - nbGroupedCells + nbGroups];
-        this.attributesNodes = new int[super.getNbCells() - nbGroupedCells + nbGroups][groupGraph.getNbAttributes()];
         this.groups = new ISet[nbGroups];
         for (int cc = 0; cc < nbGroups; cc++) {
             int sizeCC = groupGraph.getSizeCC()[cc];
             sizeCells[cc] = sizeCC;
-            for (int k = 0; k < groupGraph.getNbAttributes(); k++) {
-                attributesNodes[cc][k] = groupGraph.getAttributeCC(cc)[k];
-            }
             int[] g = groupGraph.getCC(cc);
             for (int i = 0; i < sizeCC; i++) {
                 g[i] = getPartialIndex(g[i]);
@@ -57,16 +50,9 @@ public class PartialRegularGroupedGrid extends GroupedGrid {
                 gridIdToGroupedId.put(i, nbNotGrouped + nbGroups);
                 unGroupedId[nbNotGrouped] = i;
                 sizeCells[nbNotGrouped + nbGroups] = 1;
-                for (int k = 0; k < groupGraph.getNbAttributes(); k++) {
-                    attributesNodes[nbNotGrouped + nbGroups][k] = groupGraph.getAttributesCell(i)[k];
-                }
                 nbNotGrouped++;
             }
         }
-    }
-
-    public int[] getAttributesNode(int nodeIndex) {
-        return attributesNodes[nodeIndex];
     }
 
     @Override

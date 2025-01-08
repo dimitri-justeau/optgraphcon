@@ -1,11 +1,8 @@
 package org.cceval;
 
-import org.cceval.grid.neighborhood.regular.square.partial.PartialFourConnected;
-import org.cceval.grid.regular.square.PartialRegularSquareGrid;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetFactory;
-import org.chocosolver.util.tools.ArrayUtils;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.gce.geotiff.GeoTiffReader;
@@ -14,9 +11,7 @@ import org.cceval.grid.regular.square.GroupedGrid;
 
 import java.awt.*;
 import java.awt.image.*;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
 
@@ -35,13 +30,13 @@ public class SolutionExporter {
         this.problem = problem;
         if (problem.dataLoader instanceof RasterDataLoader) {
             RasterDataLoader dataLoader = (RasterDataLoader) problem.dataLoader;
-            PartialRegularSquareGrid grid = problem.grid;
-            sites = new int[grid.getNbCells()];
-            ISet nodes = SetFactory.makeConstantSet(solution.getSetVal(problem.nodes));
-            for (int i = 0; i < problem.habitatGraphVar.getNbMaxNodes(); i++) {
-                if (problem.dataLoader.getHabitatData()[grid.getCompleteIndex(i)] == 1) {
+            GroupedGrid grid = problem.grid;
+            sites = new int[grid.getNbUngroupedCells()];
+            ISet set = SetFactory.makeConstantSet(solution.getSetVal(problem.nodes));
+            for (int i = 0; i < grid.getNbUngroupedCells(); i++) {
+                if (grid.getGroupIndexFromPartialIndex(i) < grid.getNbGroups()) {
                     sites[i] = 2;
-                } else if (nodes.contains(i)) {
+                } else if (set.contains(grid.getGroupIndexFromPartialIndex(i))) {
                     sites[i] = 3;
                 } else {
                     sites[i] = 1;
@@ -61,37 +56,9 @@ public class SolutionExporter {
                 } else {
                     completeData[i] = sites[grid.getPartialIndex(i)];
                 }
-                if (problem.dataLoader.getHabitatData()[i] == 4) {
-                    completeData[i] = 0;
-                }
             }
         }
     }
-
-/*    public void exportCharacteristics() throws IOException {
-        String[][] orderedCharacteristics = new String[2][];
-        String[] allKeys = ArrayUtils.append(solution.KEYS, solution.getObjective().getAdditionalKeys());
-        orderedCharacteristics[0] = allKeys;
-        orderedCharacteristics[1] = new String[allKeys.length];
-        for (int i = 0; i < allKeys.length; i++) {
-            orderedCharacteristics[1][i] = solution.getCharacteristics().get(allKeys[i]);
-        }
-        BufferedWriter br = new BufferedWriter(new FileWriter(csvDest));
-        StringBuilder sb = new StringBuilder();
-        for (String[] line : orderedCharacteristics) {
-            int i = 0;
-            for (String s : line) {
-                i++;
-                sb.append(s);
-                if (i < line.length) {
-                    sb.append(",");
-                }
-            }
-            sb.append("\n");
-        }
-        br.write(sb.toString());
-        br.close();
-    }*/
 
     public void generateRaster() throws IOException {
         File file = new File(template);
@@ -118,7 +85,7 @@ public class SolutionExporter {
         generateRaster();
         if (verbose) {
             //this.solution.printSolutionInfos();
-            System.out.println("\nRaster exported at " + rastDest + ".tif");
+            System.out.println("\nRaster exported at " + rastDest);
             //System.out.println("Solution characteristics exported at " + csvDest + ".csv\n");
         }
     }

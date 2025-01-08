@@ -35,6 +35,18 @@ public class DataLoader {
         }
     }
 
+    public DataLoader(int[] habitatData, int[] accessibleData, double[] restorableData, int[] cellAreaData, int accessibleValue) throws IOException {
+        this.habitatData = habitatData;
+        this.accessibleData = accessibleData;
+        this.restorableData = restorableData;
+        this.cellAreaData = cellAreaData;
+        this.features = new ArrayList<>();
+        int n = habitatData.length;
+        if (accessibleData.length != n || restorableData.length != n || cellAreaData.length != n) {
+            throw new IOException("All input datasets must have the same size");
+        }
+    }
+
     public DataLoader(int[] habitatData, int[] accessibleData, double[] restorableData, int[] cellAreaData, int width,
                       int height, double noDataHabitat) throws IOException {
         this(habitatData, accessibleData, restorableData, cellAreaData);

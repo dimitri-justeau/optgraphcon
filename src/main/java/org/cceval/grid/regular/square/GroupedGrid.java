@@ -6,8 +6,6 @@ public abstract class GroupedGrid extends PartialRegularSquareGrid {
         super(nbRows, nbCols, toDiscard);
     }
 
-    public abstract int[] getAttributesNode(int nodeIndex);
-
     public abstract int[] getSizeCells();
 
     public abstract int getNbGroups();

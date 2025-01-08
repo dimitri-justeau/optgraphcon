@@ -1,7 +1,6 @@
 package org.cceval;
 
 import java.io.IOException;
-import java.util.stream.IntStream;
 
 /**
  * Class for loading and accessing problem's data.
