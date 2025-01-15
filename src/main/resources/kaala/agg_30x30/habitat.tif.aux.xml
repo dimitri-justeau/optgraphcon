@@ -2,8 +2,8 @@
   <PAMRasterBand band="1">
     <Description>Existing habitat (aggregated)</Description>
     <CategoryNames>
-      <Category>&lt;  70 % habitat</Category>
-      <Category>≥  70 % habitat</Category>
+      <Category>&lt;  100 % habitat</Category>
+      <Category>≥  100 % habitat</Category>
       <Category></Category>
       <Category></Category>
       <Category></Category>
@@ -259,5 +259,12 @@
       <Category></Category>
       <Category></Category>
     </CategoryNames>
+    <Metadata>
+      <MDI key="STATISTICS_MAXIMUM">1</MDI>
+      <MDI key="STATISTICS_MEAN">0.17830425912161</MDI>
+      <MDI key="STATISTICS_MINIMUM">0</MDI>
+      <MDI key="STATISTICS_STDDEV">0.38276866420947</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">70.03</MDI>
+    </Metadata>
   </PAMRasterBand>
 </PAMDataset>

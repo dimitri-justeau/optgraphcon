@@ -5,6 +5,7 @@ import org.cceval.grid.neighborhood.Neighborhoods;
 import org.cceval.grid.regular.square.GroupedGrid;
 import org.cceval.grid.regular.square.PartialRegularGroupedGrid;
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.UndirectedGraphVar;
@@ -14,6 +15,9 @@ import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.chocosolver.util.tools.ArrayUtils;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.stream.IntStream;
 
 public class SpatialPlanningModel {
@@ -36,10 +40,16 @@ public class SpatialPlanningModel {
     int[] availablePlanningUnits;
 
 
-    public SpatialPlanningModel(DataLoader dataLoader, int accessibleVal, boolean verbose) throws IOException {
+    public SpatialPlanningModel(DataLoader dataLoader, int accessibleVal, boolean verbose, String logFilePath) throws IOException {
         this.dataLoader = dataLoader;
+        this.model = new Model("Spatial Planning Problem");
+        Solver solver = model.getSolver();
+        if (logFilePath != null) {
+            solver.log().remove(System.out);
+            solver.log().add(new PrintStream(Files.newOutputStream(Paths.get(logFilePath)), false));
+        }
         if (verbose) {
-            System.out.println("Raster dimension: " + dataLoader.getHeight() + " x " + dataLoader.getWidth());
+            solver.log().println("Raster dimension: " + dataLoader.getHeight() + " x " + dataLoader.getWidth());
         }
 
         int[] outPixels = IntStream.range(0, dataLoader.getHabitatData().length)
@@ -83,19 +93,17 @@ public class SpatialPlanningModel {
                 .toArray();
 
         if (verbose) {
-            System.out.println("Current landscape state loaded");
-            System.out.println("    Habitat cells = " + habitatPixelsComp.length + " ");
-            System.out.println("    Non habitat cells = " + nonHabitatPixels.length + " ");
-            System.out.println("    Accessible non habitat cells = " + availablePlanningUnits.length + " ");
-            System.out.println("    Out cells = " + outPixels.length);
+            solver.log().println("Current landscape state loaded");
+            solver.log().println("    Habitat cells = " + habitatPixelsComp.length + " ");
+            solver.log().println("    Non habitat cells = " + nonHabitatPixels.length + " ");
+            solver.log().println("    Accessible non habitat cells = " + availablePlanningUnits.length + " ");
+            solver.log().println("    Out cells = " + outPixels.length);
         }
 
         this.neighborhood = Neighborhoods.PARTIAL_GROUPED_FOUR_CONNECTED;
 
-        // Create Choco model
-        this.model = new Model("Spatial Planning Problem");
         UndirectedGraph GLB = neighborhood.getPartialGraph(grid, model, habitatPixels, SetType.BIPARTITESET, SetType.SMALLBIPARTITESET);
-        UndirectedGraph GUB = neighborhood.getPartialGraph(grid, model, ArrayUtils.concat(habitatPixels, availablePlanningUnits), SetType.BIPARTITESET, SetType.BIPARTITESET);
+        UndirectedGraph GUB = neighborhood.getPartialGraph(grid, model, ArrayUtils.concat(habitatPixels, availablePlanningUnits), SetType.BIPARTITESET, SetType.SMALLBIPARTITESET);
         this.habitatGraphVar = model.nodeInducedGraphVar(
                 "habitatGraph",
                 GLB,
@@ -103,7 +111,7 @@ public class SpatialPlanningModel {
         );
         this.nbPatchesInitial = nbGroups;
         if (verbose) {
-            System.out.println("Nb patches initial: " + nbPatchesInitial);
+            solver.log().println("Nb patches initial: " + nbPatchesInitial);
         }
 
         this.nbPatches = model.intVar(0, GUB.getNodes().size());
@@ -125,7 +133,7 @@ public class SpatialPlanningModel {
             int cell = pus[i];
             int cArea = getCellArea(cell);
             maxCellArea = maxCellArea < cArea ? cArea : maxCellArea;
-            int threshold = (int) Math.ceil(cArea * (1 - minProportion));
+            int threshold = (int) Math.floor(cArea * (1 - minProportion));
             int restorable = getRestorableArea(cell);
             maxRestorableArea[cell - offset] = restorable;
             minArea[cell - offset] = restorable <= threshold ? 0 : restorable - threshold;

@@ -85,7 +85,7 @@ public class SolutionExporter {
         generateRaster();
         if (verbose) {
             //this.solution.printSolutionInfos();
-            System.out.println("\nRaster exported at " + rastDest);
+            this.problem.model.getSolver().log().println("\nRaster exported at " + rastDest);
             //System.out.println("Solution characteristics exported at " + csvDest + ".csv\n");
         }
     }
