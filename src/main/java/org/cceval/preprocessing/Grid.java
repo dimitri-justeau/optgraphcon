@@ -784,15 +784,15 @@ public class Grid {
             }
             else if (node.getType() == Node.STEINER && node.getEdges().size() == 1) {
                 graph.remove(i);
-                Node neighbour = node.getEdges().getFirst().destination;
+                Node neighbour = node.getEdges().get(0).destination;
                 neighbour.removeEdge(node);
                 targetNodes.get(neighbour).remove(node);
                 update = true;
             } else if (node.getType() == Node.STEINER && node.getEdges().size() == 2) {
                 graph.remove(i);
-                Node neighbour1 = node.getEdges().getFirst().destination;
-                Node neighbour2 = node.getEdges().getLast().destination;
-                int weight = node.getEdges().getFirst().weight + node.getEdges().getLast().weight + node.getWeight();
+                Node neighbour1 = node.getEdges().get(0).destination;
+                Node neighbour2 = node.getEdges().get(node.getEdges().size() - 1).destination;
+                int weight = node.getEdges().get(0).weight + node.getEdges().get(node.getEdges().size() - 1).weight + node.getWeight();
 
                 neighbour1.removeEdge(node);
                 targetNodes.get(neighbour1).remove(node);
