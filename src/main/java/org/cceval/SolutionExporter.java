@@ -22,10 +22,10 @@ public class SolutionExporter {
     public String template;
     public int[] sites;
     public int[] completeData;
-    public SpatialPlanningModel problem;
+    public SpatialPlanningModelNaive problem;
     public Solution solution;
 
-    public SolutionExporter(SpatialPlanningModel problem, Solution solution, String csvDest, String rastDest, double noDataValue) {
+    public SolutionExporter(SpatialPlanningModelNaive problem, Solution solution, String csvDest, String rastDest, double noDataValue) {
         this.solution = solution;
         this.problem = problem;
         if (problem.dataLoader instanceof RasterDataLoader) {

@@ -31,23 +31,23 @@ public class Main {
 
     public void run(int agg, String destBasePath, String timeLimit) throws IOException {
         String logFilePath = destBasePath + "log/agg" + agg + ".log";
-        SpatialPlanningModel spatialPlanningModel = new SpatialPlanningModel(this.dataLoader, 0, true, logFilePath);
-        Solver solver = spatialPlanningModel.model.getSolver();
+        SpatialPlanningModelNaive spatialPlanningModelNaive = new SpatialPlanningModelNaive(this.dataLoader, 0, true, logFilePath);
+        Solver solver = spatialPlanningModelNaive.model.getSolver();
         solver.showStatistics();
         solver.log().println(" -------------------- Agg " + (agg*30) + "x" + (agg*30) + " --------------------");
         // Use a boolset view on graph nodes to use generic heuristics
-        BoolVar[] nodes = spatialPlanningModel.model.setBoolsView(spatialPlanningModel.nodes, spatialPlanningModel.habitatGraphVar.getNbMaxNodes(), 0);
+        BoolVar[] nodes = spatialPlanningModelNaive.model.setBoolsView(spatialPlanningModelNaive.nodes, spatialPlanningModelNaive.habitatGraphVar.getNbMaxNodes(), 0);
         // Deterministic search strategy
-        spatialPlanningModel.model.getSolver().setSearch(Search.inputOrderLBSearch(nodes));
+        spatialPlanningModelNaive.model.getSolver().setSearch(Search.inputOrderLBSearch(nodes));
         solver.log().println("Max budget = " + MAX_BUDGET_CELLS);
-        spatialPlanningModel.postBudgetConstraint(0, MAX_BUDGET_CELLS, 0.7);
+        spatialPlanningModelNaive.postBudgetConstraint(0, MAX_BUDGET_CELLS, 0.7);
         solver.limitTime(timeLimit);
         //solver.showShortStatistics();
-        Solution s = solver.findOptimalSolution(spatialPlanningModel.nbPatches, false);
-        solver.log().println("-> Nb patches final = " + s.getIntVal(spatialPlanningModel.nbPatches));
-        solver.log().println("-> Budget = " + s.getIntVal(spatialPlanningModel.minRestore));
+        Solution s = solver.findOptimalSolution(spatialPlanningModelNaive.nbPatches, false);
+        solver.log().println("-> Nb patches final = " + s.getIntVal(spatialPlanningModelNaive.nbPatches));
+        solver.log().println("-> Budget = " + s.getIntVal(spatialPlanningModelNaive.minRestore));
         solver.log().println("-> Search state = " + solver.getSearchState());
-        SolutionExporter exp = new SolutionExporter(spatialPlanningModel, s, "", destBasePath + "agg" + agg + ".tif", -1);
+        SolutionExporter exp = new SolutionExporter(spatialPlanningModelNaive, s, "", destBasePath + "agg" + agg + ".tif", -1);
         exp.export(true);
     }
 

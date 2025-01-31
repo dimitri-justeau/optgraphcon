@@ -20,7 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.IntStream;
 
-public class SpatialPlanningModel {
+public class SpatialPlanningModelNaive {
 
     DataLoader dataLoader;
     GroupedGrid grid;
@@ -40,7 +40,7 @@ public class SpatialPlanningModel {
     int[] availablePlanningUnits;
 
 
-    public SpatialPlanningModel(DataLoader dataLoader, int accessibleVal, boolean verbose, String logFilePath) throws IOException {
+    public SpatialPlanningModelNaive(DataLoader dataLoader, int accessibleVal, boolean verbose, String logFilePath) throws IOException {
         this.dataLoader = dataLoader;
         this.model = new Model("Spatial Planning Problem");
         Solver solver = model.getSolver();
