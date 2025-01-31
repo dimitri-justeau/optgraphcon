@@ -107,7 +107,7 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-coverage</artifactId>
-            <version>24-SNAPSHOT</version>
+            <version>${geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
