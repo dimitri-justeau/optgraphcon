@@ -1,23 +1,25 @@
 package org.cceval;
 
 import org.cceval.grid.regular.square.RegularSquareGrid;
-import org.chocosolver.util.tools.StringUtils;
 
 import java.io.IOException;
 import java.util.stream.IntStream;
 
 public class Utils {
 
-    private String testBasePath;
-    private DataLoader testDataLoader;
+    private String basePath;
+    private DataLoader dataLoader;
 
-    public Utils() throws IOException {
-        testBasePath = getClass().getClassLoader().getResource("kaala/agg_300x300/").getPath();
-        testDataLoader = new RasterDataLoader(
-                testBasePath + "habitat.tif",
-                testBasePath + "locked_out.tif",
-                testBasePath + "restorable.tif",
-                testBasePath + "cell_area.tif"
+    public static final int ACCESSIBLE_VALUE = 0;
+
+    public Utils(int agg) throws IOException {
+        String instanceName = "agg_" + (agg*30) + "x" + (agg*30) + "/";
+        basePath = getClass().getClassLoader().getResource("kaala/" + instanceName).getPath();
+        dataLoader = new RasterDataLoader(
+                basePath + "habitat.tif",
+                basePath + "locked_out.tif",
+                basePath + "restorable.tif",
+                basePath + "cell_area.tif"
         );
     }
 
@@ -77,9 +79,18 @@ public class Utils {
         System.out.println(header);
     }
 
+    public static DataLoader getDataLoaderOfInstance(int agg) throws IOException {
+        assert agg >= 1 && agg <= 10;
+        Utils utils = new Utils(agg);
+        return utils.dataLoader;
+    }
+
+    public static int[][] getMatrixWithBoundaryOfInstance(int agg) throws IOException {
+        return getInstanceAsMatrixWithBoundary(getDataLoaderOfInstance(agg), ACCESSIBLE_VALUE);
+    }
+
     public static void main(String[] args) throws IOException {
-        Utils test = new Utils();
-        int[][] matrix = getInstanceAsMatrixWithBoundary(test.testDataLoader, 0);
+        int[][] matrix = getMatrixWithBoundaryOfInstance(1);
         printMatrix(matrix);
     }
 }
