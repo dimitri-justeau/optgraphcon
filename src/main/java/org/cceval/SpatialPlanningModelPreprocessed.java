@@ -5,6 +5,7 @@ import org.cceval.preprocessing.Grid;
 import org.cceval.preprocessing.Node;
 import org.cceval.preprocessing.Pixel;
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.BoolVar;
@@ -27,6 +28,9 @@ import java.util.stream.IntStream;
 public class SpatialPlanningModelPreprocessed {
 
     Grid hananGrid;
+    DataLoader dataLoader;
+
+    int[] steinerPointsIdx;
 
     IntVar budgetEdges;
     IntVar budgetNodes;
@@ -36,16 +40,21 @@ public class SpatialPlanningModelPreprocessed {
     BoolVar[] nodesBoolVars;
     BoolVar[] decisionVars;
 
+    int[] nodesIdx;
+    int[][] edgesIdx;
+    int[] edgesWeights;
+
     Model model;
     UndirectedGraphVar habitatGraphVar;
     IntVar nbPatches;
 
     int nbPatchesInitial;
 
-    static final int MAX_BUDGET_CELLS = 787;
+    static final int MAX_BUDGET_CELLS = 500;
 
     public SpatialPlanningModelPreprocessed(int agg, boolean verbose, String logFilePath) throws IOException {
         int[][] instance = Utils.getMatrixWithBoundaryOfInstance(agg);
+        this.dataLoader = Utils.getDataLoaderOfInstance(agg);
         this.hananGrid = new Grid(instance);
         hananGrid.processInstance();
         this.model = new Model("Spatial Planning Problem -- preprocessed");
@@ -113,11 +122,11 @@ public class SpatialPlanningModelPreprocessed {
             }
         }
 
-        int[] edgesWeights = weightsList.stream().mapToInt(v -> v).toArray();
-        int[][] edges = wedgesList.stream().toArray(int[][]::new);
+        edgesWeights = weightsList.stream().mapToInt(v -> v).toArray();
+        edgesIdx = wedgesList.stream().toArray(int[][]::new);
         edgesBoolVars = bedgesList.stream().toArray(BoolVar[]::new);
 
-        System.out.println("Number of edges (verif) = " + edges.length);
+        System.out.println("Number of edges (verif) = " + edgesIdx.length);
 
         System.out.println("Graph LB : \n" + GLB);
         System.out.println("\n ----- ");
@@ -138,17 +147,19 @@ public class SpatialPlanningModelPreprocessed {
         this.nbPatches = model.intVar(0, GUB.getNodes().size());
         model.nbConnectedComponents(habitatGraphVar, nbPatches).post();
 
-        for (int i = 0; i < edges.length; i++) {
-            model.edgeChanneling(habitatGraphVar, edgesBoolVars[i], edges[i][0], edges[i][1]).post();
+        for (int i = 0; i < edgesIdx.length; i++) {
+            model.edgeChanneling(habitatGraphVar, edgesBoolVars[i], edgesIdx[i][0], edgesIdx[i][1]).post();
         }
 
         this.budgetEdges = model.intVar("Budget edges", 0, MAX_BUDGET_CELLS);
         model.scalar(edgesBoolVars, edgesWeights, "=", budgetEdges).post();
 
         nodesBoolVars = model.boolVarArray(steinerPointsIdx.length);
+        nodesIdx = new int[nodesBoolVars.length];
         int[] nodesWeights = IntStream.range(0, nodesBoolVars.length).map(i -> 1).toArray();
         for (int i = 0; i < nodesBoolVars.length; i++) {
             model.nodeChanneling(habitatGraphVar, nodesBoolVars[i], steinerPointsIdx[i]).post();
+            nodesIdx[i] = steinerPointsIdx[i];
         }
         this.budgetNodes = model.intVar("Budget nodes", 0, MAX_BUDGET_CELLS);
         model.scalar(nodesBoolVars, nodesWeights, "=", budgetNodes).post();
@@ -164,8 +175,14 @@ public class SpatialPlanningModelPreprocessed {
         SpatialPlanningModelPreprocessed sp = new SpatialPlanningModelPreprocessed(1, true, null);
         Solver s = sp.model.getSolver();
         s.setSearch(Search.inputOrderLBSearch(sp.decisionVars));
-        s.limitTime("1m");
+        s.limitTime("10m");
         s.showStatistics();
-        s.findOptimalSolution(sp.nbPatches, false);
+        Solution sol = s.findOptimalSolution(sp.nbPatches, false);
+        System.out.println("FINAL COST = " + sol.getIntVal(sp.totalBudget));
+        SolutionExporterPreprocessed solExp = new SolutionExporterPreprocessed(sp, sol,
+                "/home/justeau-allaire/latex/OPTIMIZING_GRAPH_CONNECTIVITY/TEST_RESULTS/res.csv",
+                "/home/justeau-allaire/latex/OPTIMIZING_GRAPH_CONNECTIVITY/TEST_RESULTS/res.tif", -1);
+        solExp.export(true);
+        //System.out.println(sp.hananGrid);
     }
 }
