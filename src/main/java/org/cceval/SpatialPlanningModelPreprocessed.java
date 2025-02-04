@@ -50,7 +50,7 @@ public class SpatialPlanningModelPreprocessed {
 
     int nbPatchesInitial;
 
-    static final int MAX_BUDGET_CELLS = 500;
+    static final int MAX_BUDGET_CELLS = 787;
 
     public SpatialPlanningModelPreprocessed(int agg, boolean verbose, String logFilePath) throws IOException {
         int[][] instance = Utils.getMatrixWithBoundaryOfInstance(agg);
@@ -175,7 +175,7 @@ public class SpatialPlanningModelPreprocessed {
         SpatialPlanningModelPreprocessed sp = new SpatialPlanningModelPreprocessed(1, true, null);
         Solver s = sp.model.getSolver();
         s.setSearch(Search.inputOrderLBSearch(sp.decisionVars));
-        s.limitTime("10m");
+        s.limitTime("1m");
         s.showStatistics();
         Solution sol = s.findOptimalSolution(sp.nbPatches, false);
         System.out.println("FINAL COST = " + sol.getIntVal(sp.totalBudget));
