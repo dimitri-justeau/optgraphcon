@@ -12,7 +12,7 @@ public class Main {
 
         //int[][] instance = instance2();
         long t = System.currentTimeMillis();
-        int[][] instance = Utils.getMatrixWithBoundaryOfInstance(1);
+        int[][] instance = Utils.getMatrixWithBoundaryOfInstance(8);
         Grid grid = new Grid(instance);
 //        grid.prepareGrid();
 //        //System.out.println(grid);

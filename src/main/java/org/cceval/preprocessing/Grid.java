@@ -938,7 +938,16 @@ public class Grid {
         }
     }
 
+    public ArrayList<Node> getNodes() {
+        return graph;
+    }
 
-
-
+    public int getNbEdges() {
+        numEdges = 0;
+        for (Node node : graph) {
+            numEdges += node.getEdges().size();
+        }
+        numEdges = numEdges / 2;
+        return numEdges;
+    }
 }
