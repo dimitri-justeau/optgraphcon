@@ -26,7 +26,7 @@ public class HananGrid {
         this.grid = grid;
     }
 
-    public void processInstance() {
+    public void process_FP_CR_GS() {
         prepareGrid();
         fillingProcedure();
         prepareGrid();
@@ -34,6 +34,22 @@ public class HananGrid {
         getGraphFromGrid();
         graphSimplification();
     }
+
+    public void process_FP_CR() {
+        prepareGrid();
+        fillingProcedure();
+        prepareGrid();
+        drawComplexRectilinearGrid();
+        getGraphFromGrid();
+    }
+
+    public void process_CR() {
+        prepareGrid();
+        drawComplexRectilinearGrid();
+        getGraphFromGrid();
+    }
+
+
 
     @Override
     public String toString() {
@@ -49,32 +65,32 @@ public class HananGrid {
         }
         res += obstacleConvexCorners.size() + " obstacles, with " + s + " convex corners\n";
 
-        for (int i = 0; i < N; i++) {
-            String line = "";
-            for (int j = 0; j < M; j++) {
-                if (status[i][j].get(Pixel.OBSTACLE)) {
-                    line += "X";
-                }
-                else if (status[i][j].get(Pixel.TERMINAL)) {
-                    line += "O";
-                }
-                else if (status[i][j].get(Pixel.FREE)) {
-                    if (status[i][j].get(Pixel.HORIZONTAL_LINE) && status[i][j].get(Pixel.VERTICAL_LINE)) {
-                        line += "+";
-                    }
-                    else if (status[i][j].get(Pixel.HORIZONTAL_LINE)) {
-                        line += "-";
-                    }
-                    else if (status[i][j].get(Pixel.VERTICAL_LINE)) {
-                        line += "|";
-                    }
-                    else {
-                        line += " ";
-                    }
-                }
-            }
-            res += line + "\n";
-        }
+//        for (int i = 0; i < N; i++) {
+//            String line = "";
+//            for (int j = 0; j < M; j++) {
+//                if (status[i][j].get(Pixel.OBSTACLE)) {
+//                    line += "X";
+//                }
+//                else if (status[i][j].get(Pixel.TERMINAL)) {
+//                    line += "O";
+//                }
+//                else if (status[i][j].get(Pixel.FREE)) {
+//                    if (status[i][j].get(Pixel.HORIZONTAL_LINE) && status[i][j].get(Pixel.VERTICAL_LINE)) {
+//                        line += "+";
+//                    }
+//                    else if (status[i][j].get(Pixel.HORIZONTAL_LINE)) {
+//                        line += "-";
+//                    }
+//                    else if (status[i][j].get(Pixel.VERTICAL_LINE)) {
+//                        line += "|";
+//                    }
+//                    else {
+//                        line += " ";
+//                    }
+//                }
+//            }
+//            res += line + "\n";
+//        }
         numNodes = graph.size();
         numEdges = 0;
         for (Node node : graph) {
@@ -82,7 +98,7 @@ public class HananGrid {
         }
         numEdges = numEdges / 2;
         res += "Graph: " + numNodes + " nodes, " + numEdges + " edges\n";
-        res += graph.toString() + "\n";
+        //res += graph.toString() + "\n";
         return res;
     }
 

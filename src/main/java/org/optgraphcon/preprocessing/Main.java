@@ -13,8 +13,9 @@ public class Main {
 
         long t = System.currentTimeMillis();
         int[][] instance = Utils.getMatrixWithBoundaryOfInstance(1);
+        //int[][] instance = instance1();
         HananGrid hananGrid = new HananGrid(instance);
-        hananGrid.processInstance();
+        hananGrid.process_FP_CR_GS();
         System.out.println(hananGrid);
         System.out.println("PREPROCESSING_TIME = " + ((System.currentTimeMillis() - t) * 0.001) + "s");
     }

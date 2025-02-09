@@ -57,7 +57,7 @@ public class SpatialPlanningModelPreprocessed {
         int[][] instance = Utils.getMatrixWithBoundaryOfInstance(agg);
         this.dataLoader = Utils.getDataLoaderOfInstance(agg);
         this.hananGrid = new HananGrid(instance);
-        hananGrid.processInstance();
+        hananGrid.process_FP_CR_GS();
         this.model = new Model("Spatial Planning Problem -- preprocessed");
         Solver solver = model.getSolver();
         if (logFilePath != null) {
