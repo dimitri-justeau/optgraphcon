@@ -3,9 +3,13 @@ Source code and datasets associated with the manuscript:
 **Towards the 30 by 30 Kunming-Montreal Global Biodiversity Framework Target:
 Optimizing Graph Connectivity in Constraint-based Spatial Planning**
 
-The "naive" model is in the `org.optgraphcon.naivemodel` and can be launched with the `MainNaive` class.
+The experiment dataset is located in `src.main.resources.kaala`.
 
-The "preprocessed" model is in the `org.optgraphcon.preprocessedmodel` and can be launched with the `MainNaive` class.
+The "naive" model is in the `org.optgraphcon.naivemodel` package and can be launched with the `MainNaive`
+class (located in the same package).
+
+The "preprocessed" model is in the `org.optgraphcon.preprocessedmodel` and can be launched with the `MainNaive` 
+class (located in the same package)
 
 The preprocessing method based on Hanan grids is in the `org.optgraphcon.preprocessing` package.
 

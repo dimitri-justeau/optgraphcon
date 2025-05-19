@@ -23,6 +23,16 @@ public class Utils {
         );
     }
 
+    public Utils(int agg, String basePath) throws IOException {
+        String instanceName = "agg_" + (agg*30) + "x" + (agg*30) + "/";
+        dataLoader = new RasterDataLoader(
+                basePath + instanceName + "habitat.tif",
+                basePath + instanceName + "locked_out.tif",
+                basePath + instanceName + "restorable.tif",
+                basePath + instanceName + "cell_area.tif"
+        );
+    }
+
     public static int[][] getInstanceAsMatrix(DataLoader dataLoader, int accessibleVal) {
         int[] flatMatrix = IntStream.range(0, dataLoader.getHabitatData().length)
                 .map(i -> {
@@ -83,6 +93,16 @@ public class Utils {
         assert agg >= 1 && agg <= 10;
         Utils utils = new Utils(agg);
         return utils.dataLoader;
+    }
+
+    public static DataLoader getDataLoaderOfInstance(int agg, String basePath) throws IOException {
+        assert agg >= 1 && agg <= 10;
+        Utils utils = new Utils(agg, basePath);
+        return utils.dataLoader;
+    }
+
+    public static int[][] getMatrixWithBoundaryOfInstance(int agg, String basePath) throws IOException {
+        return getInstanceAsMatrixWithBoundary(getDataLoaderOfInstance(agg, basePath), ACCESSIBLE_VALUE);
     }
 
     public static int[][] getMatrixWithBoundaryOfInstance(int agg) throws IOException {

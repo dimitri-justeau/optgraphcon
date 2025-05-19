@@ -54,10 +54,24 @@ public class SpatialPlanningModelPreprocessed {
     int nbPatchesInitial;
 
     public SpatialPlanningModelPreprocessed(int agg, boolean verbose, String logFilePath) throws IOException {
-        int[][] instance = Utils.getMatrixWithBoundaryOfInstance(agg);
-        this.dataLoader = Utils.getDataLoaderOfInstance(agg);
+        this(agg, null, verbose, logFilePath);
+    }
+
+
+    public SpatialPlanningModelPreprocessed(int agg, String basePath, boolean verbose, String logFilePath) throws IOException {
+        int[][] instance;
+        if (basePath == null) {
+            instance = Utils.getMatrixWithBoundaryOfInstance(agg);
+            this.dataLoader = Utils.getDataLoaderOfInstance(agg);
+        } else {
+            System.out.println(basePath);
+            instance = Utils.getMatrixWithBoundaryOfInstance(agg, basePath);
+            this.dataLoader = Utils.getDataLoaderOfInstance(agg, basePath);
+        }
         this.hananGrid = new HananGrid(instance);
+        long t = System.currentTimeMillis();
         hananGrid.process_FP_CR_GS();
+        System.out.println("Preprocessing time = " + (1.0 * (System.currentTimeMillis() - t) * 0.001) + "s");
         this.model = new Model("Spatial Planning Problem -- preprocessed");
         Solver solver = model.getSolver();
         if (logFilePath != null) {
@@ -164,7 +178,7 @@ public class SpatialPlanningModelPreprocessed {
         SpatialPlanningModelPreprocessed sp = new SpatialPlanningModelPreprocessed(1, true, null);
         Solver s = sp.model.getSolver();
         s.setSearch(Search.inputOrderLBSearch(sp.decisionVars));
-        s.limitTime("1m");
+        s.limitTime("10h");
         s.showStatistics();
         Solution sol = s.findOptimalSolution(sp.nbPatches, false);
         System.out.println("FINAL COST = " + sol.getIntVal(sp.totalBudget));

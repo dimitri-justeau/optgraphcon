@@ -43,7 +43,6 @@ public class MainNaive {
         solver.log().println("Max budget = " + MAX_BUDGET_CELLS);
         spatialPlanningModelNaive.postBudgetConstraint(0, MAX_BUDGET_CELLS, 0.7);
         solver.limitTime(timeLimit);
-        //solver.showShortStatistics();
         Solution s = solver.findOptimalSolution(spatialPlanningModelNaive.nbPatches, false);
         solver.log().println("-> Nb patches final = " + s.getIntVal(spatialPlanningModelNaive.nbPatches));
         solver.log().println("-> Budget = " + s.getIntVal(spatialPlanningModelNaive.minRestore));
